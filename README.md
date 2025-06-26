@@ -1,6 +1,6 @@
 # Inquira: Intelligent YouTube Video Question Answering System
 
-**Inquira** is a smart assistant that allows users to ask questions about the content of any YouTube video — even if it's in a non-English language — and receive relevant, context-aware answers powered by **LangChain** and **Google Gemini**.
+**Inquira** is a smart assistant that allows users to ask questions about the content of any YouTube video and receive relevant, context-aware answers powered by **LangChain** and **Google Gemini**.
 
 It is designed to assist learners, researchers, and professionals who want to extract insights from video lectures, tutorials, or presentations without watching the entire content.
 
@@ -36,7 +36,8 @@ It is designed to assist learners, researchers, and professionals who want to ex
 
 1. **Clone the repository**
    ```bash
-   git clone      https://github.com/yourusername/Inquira.git
+   git clone https://github.com/mahanya2726/inquira-youtube-assistant.git
+
    cd Inquira 
    ```
 2. **Install dependencies**
