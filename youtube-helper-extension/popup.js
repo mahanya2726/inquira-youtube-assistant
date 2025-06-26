@@ -1,5 +1,7 @@
 document.getElementById("askButton").addEventListener("click", () => {
   const userDoubt = document.getElementById("doubtInput").value;
+  const spinner = document.getElementById("loadingSpinner");
+  spinner.style.display = "block"; // show spinner
 
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
     chrome.tabs.sendMessage(
@@ -7,13 +9,13 @@ document.getElementById("askButton").addEventListener("click", () => {
       { type: "GET_VIDEO_URL" },
       (response) => {
         if (chrome.runtime.lastError) {
+          spinner.style.display = "none";
           alert("Error: " + chrome.runtime.lastError.message);
           return;
         }
 
         const videoUrl = response.url || "URL not found";
 
-        // ✅ Send data to Flask backend
         fetch("http://127.0.0.1:5000/ask", {
           method: "POST",
           headers: {
@@ -26,6 +28,7 @@ document.getElementById("askButton").addEventListener("click", () => {
         })
           .then((res) => res.json())
           .then((data) => {
+            spinner.style.display = "none"; // hide spinner
             if (data.answer) {
               alert("Answer: " + data.answer);
             } else {
@@ -33,6 +36,7 @@ document.getElementById("askButton").addEventListener("click", () => {
             }
           })
           .catch((err) => {
+            spinner.style.display = "none";
             alert("Request failed: " + err.message);
           });
       }

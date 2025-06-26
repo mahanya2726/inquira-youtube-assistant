@@ -8,6 +8,7 @@ from langchain.text_splitter import CharacterTextSplitter
 from langchain.docstore.document import Document
 from langchain_google_genai import ChatGoogleGenerativeAI
 from dotenv import load_dotenv
+from googletrans import Translator
 import os
 
 # ✅ Set your API key
@@ -16,23 +17,41 @@ GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 
 # ✅ Initialize Flask
 app = Flask(__name__)
-CORS(app)  # <-- 🔥 This alone is enough
+CORS(app)
 
-# ✅ Transcript helper
+# ✅ Enhanced Transcript helper with manual CC support
 def get_transcript(video_url):
     video_id = video_url.split("v=")[-1].split("&")[0]
-    transcript = YouTubeTranscriptApi.get_transcript(video_id)
-    return " ".join([entry["text"] for entry in transcript])
+
+    # Step 1: Get transcript in any available language
+    transcript_list = YouTubeTranscriptApi.list_transcripts(video_id)
+    transcript = next(iter(transcript_list))
+    fetched = transcript.fetch()
+    original_text = " ".join([chunk.text for chunk in fetched])
+
+    # Step 2: Translate to English
+    translator = Translator()
+    max_len = 4500
+    chunks = [original_text[i:i + max_len] for i in range(0, len(original_text), max_len)]
+
+    translated_chunks = []
+    for chunk in chunks:
+        translated = translator.translate(chunk, dest='en')
+        translated_chunks.append(translated.text)
+
+    translated_text = " ".join(translated_chunks)
+    return translated_text
+
 
 # ✅ Initialize embeddings + model
 embeddings = GoogleGenerativeAIEmbeddings(
     model="models/embedding-001",
-    google_api_key=os.environ["GOOGLE_API_KEY"]
+    google_api_key=GOOGLE_API_KEY
 )
 llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", temperature=0.2)
 qa_chain = load_qa_chain(llm, chain_type="stuff")
 
-# ✅ API route
+# ✅ API route with improved error handling
 @app.route("/ask", methods=["POST"])
 def ask_doubt():
     data = request.json
@@ -48,8 +67,17 @@ def ask_doubt():
         relevant_docs = retriever.get_relevant_documents(question)
         answer = qa_chain.run(input_documents=relevant_docs, question=question)
         return jsonify({"answer": answer})
+    
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({
+            "error": str(e),
+            "solution": "Ensure English CC is enabled on YouTube",
+            "steps": [
+                "1. Click the CC button on YouTube",
+                "2. Select 'English' or 'Auto-translate → English'",
+                "3. Refresh this page"
+            ]
+        }), 400
 
 # ✅ Run app
 if __name__ == "__main__":
