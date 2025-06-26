@@ -38,7 +38,7 @@ It is designed to assist learners, researchers, and professionals who want to ex
    ```bash
    git clone https://github.com/mahanya2726/inquira-youtube-assistant.git
 
-   cd Inquira 
+   cd inquira-youtube-assistant
    ```
 2. **Install dependencies**
     ```bash
