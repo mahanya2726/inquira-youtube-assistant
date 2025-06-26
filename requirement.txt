@@ -1,11 +1,10 @@
 flask
 flask-cors
 langchain
-langchain-core
 langchain-community
+langchain-core
 langchain-google-genai
 faiss-cpu
 youtube-transcript-api
-deep-translator
+googletrans==4.0.0-rc1
 python-dotenv
-

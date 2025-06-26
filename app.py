@@ -11,15 +11,15 @@ from dotenv import load_dotenv
 from googletrans import Translator
 import os
 
-# ✅ Set your API key
+# Set your API key
 load_dotenv()
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 
-# ✅ Initialize Flask
+# Initialize Flask
 app = Flask(__name__)
 CORS(app)
 
-# ✅ Enhanced Transcript helper with manual CC support
+# Enhanced Transcript helper with manual CC support
 def get_transcript(video_url):
     video_id = video_url.split("v=")[-1].split("&")[0]
 
@@ -43,7 +43,7 @@ def get_transcript(video_url):
     return translated_text
 
 
-# ✅ Initialize embeddings + model
+# Initialize embeddings + model
 embeddings = GoogleGenerativeAIEmbeddings(
     model="models/embedding-001",
     google_api_key=GOOGLE_API_KEY
@@ -51,7 +51,7 @@ embeddings = GoogleGenerativeAIEmbeddings(
 llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", temperature=0.2)
 qa_chain = load_qa_chain(llm, chain_type="stuff")
 
-# ✅ API route with improved error handling
+# API route with improved error handling
 @app.route("/ask", methods=["POST"])
 def ask_doubt():
     data = request.json
@@ -71,14 +71,10 @@ def ask_doubt():
     except Exception as e:
         return jsonify({
             "error": str(e),
-            "solution": "Ensure English CC is enabled on YouTube",
-            "steps": [
-                "1. Click the CC button on YouTube",
-                "2. Select 'English' or 'Auto-translate → English'",
-                "3. Refresh this page"
-            ]
+            "solution": "Something went wrong while processing the transcript.",
+            "hint": "Make sure the video has subtitles enabled or is not restricted."
         }), 400
 
-# ✅ Run app
+#  Run app
 if __name__ == "__main__":
     app.run(debug=True)
